@@ -25,8 +25,10 @@ public class DijkstraAlgorithm {
         matrix[5] = new int[]{N,N,N,4,5,N,6};
         matrix[6] = new int[]{2,3,N,N,4,6,N};
 
+
         Graph graph = new Graph(vertex, matrix);
         graph.dsj(6);
+        graph.showDijkstra();
     }
 }
 
@@ -50,7 +52,13 @@ class Graph{
     // 迪杰斯特拉算法实现, index表示出发顶点
     public void dsj(int index){
         vv = new VistedVertex(vertex.length, index);
+        update(index); // 更新index顶点到 周围顶点的距离 和 前驱顶点
 
+        for (int j = 1; j < vertex.length; j++) {
+            index = vv.updateArr();// 选择并返回新的访问顶点
+            update(index); // 更新index顶点到 周围顶点的距离 和 前驱顶点
+            
+        }
     }
 
 
@@ -59,17 +67,23 @@ class Graph{
         int len = 0;
 
         // 遍历邻接矩阵的行
-        for(int j = 0;j < matrix[0].length;j++){
+        for(int j = 0;j < matrix[index].length;j++){
             // len的含义：出发顶点的距离 + 从index顶点到j顶点的距离 之和
             len = vv.getDis(index) + matrix[index][j];
 
             // 如果j没有访问过，并且len小于出发顶点 到 j 顶点的距离 就需要更新
             if(!vv.in(j) && len < vv.getDis(j)){
-
+                vv.updatePre(j,index); // 更新j顶点的前驱为index顶点
+                vv.updateDis(j,len); // 更新出发顶点到j顶点的距离
 
             }
         }
     }
+
+    public void showDijkstra(){
+        vv.show();
+    }
+
 }
 
 
@@ -93,7 +107,10 @@ class VistedVertex{
 
         // 初始化dis数组
         Arrays.fill(dis,65535);
-        this.dis[index] = 0;
+
+        this.already_arr[index] = 1; // 设置出发定点被访问
+
+        this.dis[index] = 0; // 设置出发顶点的距离为0
     }
 
 
@@ -110,7 +127,7 @@ class VistedVertex{
 
     //更新 顶点 的前驱结点 成 index
     public void updatePre(int pre,int index){
-        pre_visited[pre] = index;
+        //pre_visited[pre] = index;
     }
 
 
@@ -119,6 +136,49 @@ class VistedVertex{
         return dis[index];
     }
 
+    // 继续选择并返回新的访问顶点，比如这里的G完后，就是A点作为新的访问顶点（注意不是出发顶点）
+    public int updateArr(){
+        int min = 65535,index = 0;
+        for(int i =0;i < already_arr.length;i++){
+            if(already_arr[i] == 0 && dis[i] < min){
+                min = dis[i];
+                index = i;
+            }
+        }
+        // 更新index被访问
+        already_arr[index] = 1;
+        return index;
+    }
 
+    // 显示最后的结果
+    public void show(){
+        for (int i : already_arr) {
+            System.out.print(i + "\t");
+        }
+
+        System.out.println();
+        for (int i : pre_visited) {
+            System.out.print(i + "\t");
+        }
+
+        System.out.println();
+
+        for (int i : dis) {
+            System.out.print(i + "\t");
+        }
+        System.out.println();
+        char[] vertex = {'A','B','C','D','E','F','G'};
+        int count = 0;
+        for(int i : dis){
+            if(i != 65535){
+                System.out.print(vertex[count] + "(" + i + ")\t");
+            }else {
+                System.out.println("N");
+            }
+            count++;
+        }
+        System.out.println();
+
+    }
 
 }
