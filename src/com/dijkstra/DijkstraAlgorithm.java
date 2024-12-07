@@ -127,7 +127,7 @@ class VistedVertex{
 
     //更新 顶点 的前驱结点 成 index
     public void updatePre(int pre,int index){
-        //pre_visited[pre] = index;
+        pre_visited[pre] = index;
     }
 
 
